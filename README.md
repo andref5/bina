@@ -1,20 +1,30 @@
 # eBPF xdp example
 This is a simple example of eBPF with XDP, droping packages by IP address.
 
+- Take a look step-by-step examples:
+  - \o_ [start](https://github.com/andref5/bina/tree/main) - Load eBPF Program with iproute2
+  - [go-load](https://github.com/andref5/bina/tree/go-load)  - Load eBPF Program with golang
+  - [go-load-map](https://github.com/andref5/bina/tree/go-load-map) - Load eBPF Program and Map with golang
+
 ## How it works
 
 It has two HTTP golang server on folders "pkg/a"(port 5011) and "pkg/b"(port 5012).
 Using docker/compose (https://docs.docker.com/compose/install/) to simulate a connection/network between two services with fixed IP 172.20.0.11(service A) and 172.20.0.12(service B).
 
 ```
-*-----------------------Docker network------------------------*
-|                                                             |
-|  +---------+     http://172.20.0.12:5012/b     +---------+  |
-|  | service |--------------------------------->>| service |  |
-|  |    A    |<<---------------------------------|    B    |  |
-|  +---------+     http://172.20.0.11:5011/a     +---------+  |
-|                                                             |
-*-------------------------------------------------------------*
+*-----------------------Docker network--------------------------*
+|                                                               |
+|  +---------+     http://172.20.0.12:5012/b     |e|+--------+  |
+|  | service |--------------------------------->>|b| service |  |
+|  |    A    |<<---------------------------------|p|    B    |  |
+|  +---------+     http://172.20.0.11:5011/a     |f|+--------+  |
+|                                                 ^             |
+|                                                 | (xdp.o)     |
+|                                                 |             |
+|                                           *----------*        |
+|                                           | iproute2 |        |
+|                                           *----------*        |
+*---------------------------------------------------------------*
 ```
 
 In the folder "pkg/b/ebpf" have a eBPF program (xdp.c) that load net packet contents, parse IP address and drop package if IP is equal to 172.20.0.11 (service A)
@@ -23,6 +33,7 @@ In the folder "pkg/b/ebpf" have a eBPF program (xdp.c) that load net packet cont
 
 ### Startup docker containers
 ```bash
+docker-compose build
 docker-compose up
 ```
 

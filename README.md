@@ -7,14 +7,19 @@ It has two HTTP golang server on folders "pkg/a"(port 5011) and "pkg/b"(port 501
 Using docker/compose (https://docs.docker.com/compose/install/) to simulate a connection/network between two services with fixed IP 172.20.0.11(service A) and 172.20.0.12(service B).
 
 ```
-*-----------------------Docker network------------------------*
-|                                                             |
-|  +---------+     http://172.20.0.12:5012/b     +---------+  |
-|  | service |--------------------------------->>| service |  |
-|  |    A    |<<---------------------------------|    B    |  |
-|  +---------+     http://172.20.0.11:5011/a     +---------+  |
-|                                                             |
-*-------------------------------------------------------------*
+*-----------------------Docker network--------------------------*
+|                                                               |
+|  +---------+     http://172.20.0.12:5012/b     |e|+--------+  |
+|  | service |--------------------------------->>|b| service |  |
+|  |    A    |<<---------------------------------|p|    B    |  |
+|  +---------+     http://172.20.0.11:5011/a     |f|+--------+  |
+|                                                 ^             |
+|                                                 | (xdp.o)     |
+|                                                 |             |
+|                                            *---------*        |
+|                                            | load.go |        |
+|                                            *---------*        |
+*---------------------------------------------------------------*
 ```
 
 In the folder "pkg/b/ebpf" have a eBPF program (xdp.c) that load net packet contents, parse IP address and drop package if IP is equal to 172.20.0.11 (service A)

@@ -46,8 +46,13 @@ cd ebpf
 # compile xdp.c to eBPF
 clang -target bpf -O2 -c xdp.c -o xdp.o
 
-# Load eBPF inside the kernel using iproute2 tool
-ip -force link set dev eth0 xdpdrv obj xdp.o sec .text
+# Load eBPF inside the kernel using Go with BPF Compiler Collection toolkit (BCC)
+go run load.go
+```
+
+### New terminal to exec interactive bash on svc-B container
+```bash
+docker exec -it svc-b /bin/bash
 
 # See attached XDP hook on eth0
 ip link show dev eth0
@@ -68,8 +73,8 @@ curl -m5 http://localhost:5012/b
 
 ### Back to interactive bash on svc-B container
 ```bash
-# Unload eBPF using ip link tool
-ip link set dev eth0 xdpdrv off
+# Unload eBPF with Go (check defer func)
+# press Crtl+C
 
 # See detached XDP hook on eth0
 ip link show dev eth0

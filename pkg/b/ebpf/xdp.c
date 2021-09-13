@@ -5,6 +5,8 @@
 #include <linux/if_vlan.h>
 #include <linux/ip.h>
 
+#define SEC(NAME) __attribute__((section(NAME), used))
+
 static inline int parse_ipv4(void *data, __u64 nh_off, void *data_end, __be32 *src)
 {
   struct iphdr *iph = data + nh_off;
@@ -14,6 +16,7 @@ static inline int parse_ipv4(void *data, __u64 nh_off, void *data_end, __be32 *s
   return iph->protocol;
 }
 
+SEC("xdp/bina")
 int xdp_bina(struct xdp_md *ctx)
 {
   void *data_end = (void *)(long)ctx->data_end;

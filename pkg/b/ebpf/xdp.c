@@ -4,8 +4,7 @@
 #include <linux/if_packet.h>
 #include <linux/if_vlan.h>
 #include <linux/ip.h>
-
-#define SEC(NAME) __attribute__((section(NAME), used))
+#include "bpf_helper.h"
 
 static inline int parse_ipv4(void *data, __u64 nh_off, void *data_end, __be32 *src)
 {

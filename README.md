@@ -1,6 +1,11 @@
 # eBPF xdp example
 This is a simple example of eBPF with XDP, droping packages by IP address.
 
+- Take a look step-by-step examples:
+  - [start](https://github.com/andref5/bina/tree/main) - Load eBPF Program with iproute2
+  - \o_ [go-load](https://github.com/andref5/bina/tree/go-load)  - Load eBPF Program with golang
+  - [go-load-map](https://github.com/andref5/bina/tree/go-load-map) - Load eBPF Program and Map with golang
+
 ## How it works
 
 It has two HTTP golang server on folders "pkg/a"(port 5011) and "pkg/b"(port 5012).
@@ -16,9 +21,9 @@ Using docker/compose (https://docs.docker.com/compose/install/) to simulate a co
 |                                                 ^             |
 |                                                 | (xdp.o)     |
 |                                                 |             |
-|                                            *---------*        |
-|                                            | load.go |        |
-|                                            *---------*        |
+|                                          *-------------*      |
+|                                          | userland.go |      |
+|                                          *-------------*      |
 *---------------------------------------------------------------*
 ```
 
@@ -28,6 +33,7 @@ In the folder "pkg/b/ebpf" have a eBPF program (xdp.c) that load net packet cont
 
 ### Startup docker containers
 ```bash
+docker-compose build
 docker-compose up
 ```
 
@@ -52,7 +58,7 @@ cd ebpf
 clang -target bpf -O2 -c xdp.c -o xdp.o
 
 # Load eBPF inside the kernel using Go with BPF Compiler Collection toolkit (BCC)
-go run load.go
+go run userland.go
 ```
 
 ### New terminal to exec interactive bash on svc-B container

@@ -15,6 +15,15 @@ static inline int parse_ipv4(void *data, __u64 nh_off, void *data_end, __be32 *s
   return iph->protocol;
 }
 
+struct bpf_map_def SEC("maps/deny_ips") deny_ips = {
+	.type = BPF_MAP_TYPE_HASH,
+	.key_size = sizeof(__u32),
+	.value_size = sizeof(__u32),
+	.max_entries = 10,
+	.pinning = 0,
+	.namespace = "",
+};
+
 SEC("xdp/bina")
 int xdp_bina(struct xdp_md *ctx)
 {
@@ -25,6 +34,7 @@ int xdp_bina(struct xdp_md *ctx)
   __u16 h_proto;
   __u64 nh_off;
   int ipproto;
+  __u32 *exists;
 
   nh_off = sizeof(*eth);
   if (data + nh_off > data_end)
@@ -35,11 +45,11 @@ int xdp_bina(struct xdp_md *ctx)
       goto pass;
 
   ipproto = parse_ipv4(data, nh_off, data_end, &src_ip);
-  unsigned int intIP = 184554668; // int value of 172.20.0.11
-  if (src_ip == intIP)
+  __u32 intIP = src_ip;
+  exists = bpf_map_lookup_elem(&deny_ips, &intIP);
+  if (exists)
       return XDP_DROP;
 
 pass:
   return XDP_PASS;
 }
-

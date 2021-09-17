@@ -3,8 +3,8 @@ This is a simple example of eBPF with XDP, droping packages by IP address.
 
 - Take a look step-by-step examples:
   - [start](https://github.com/andref5/bina/tree/main) - Load eBPF Program with iproute2
-  - \o_ [go-load](https://github.com/andref5/bina/tree/go-load)  - Load eBPF Program with golang
-  - [go-load-map](https://github.com/andref5/bina/tree/go-load) - Load eBPF Program and Map with golang
+  - [go-load](https://github.com/andref5/bina/tree/go-load)  - Load eBPF Program with golang
+  - \o_ [go-load-map](https://github.com/andref5/bina/tree/go-load-map) - Load eBPF Program and Map with golang
 
 ## How it works
 
@@ -19,7 +19,7 @@ Using docker/compose (https://docs.docker.com/compose/install/) to simulate a co
 |  |    A    |<<---------------------------------|p|    B    |  |
 |  +---------+     http://172.20.0.11:5011/a     |f|+--------+  |
 |                                                 ^             |
-|                                                 | (xdp.o)     |
+|                                           (map) | (xdp.o)     |
 |                                                 |             |
 |                                          *-------------*      |
 |                                          | userland.go |      |
@@ -57,8 +57,8 @@ cd ebpf
 # compile xdp.c to eBPF
 clang -target bpf -O2 -c xdp.c -o xdp.o
 
-# Load eBPF inside the kernel using Go with BPF Compiler Collection toolkit (BCC)
-go run userland.go
+# Load eBPF inside the kernel and setup MAP using Go with BPF Compiler Collection toolkit (BCC)
+go run userland.go -deny 172.20.0.11
 ```
 
 ### New terminal to exec interactive bash on svc-B container
